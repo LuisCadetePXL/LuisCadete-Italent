@@ -577,6 +577,11 @@ document.getElementById('cv-download-btn').addEventListener('click',function(e){
   fetch(this.href,{method:'HEAD'}).then(r=>{if(!r.ok){e.preventDefault();alert('CV niet gevonden. Contacteer Luis via LinkedIn.')}}).catch(()=>{});
 });
 document.getElementById('lightbox').addEventListener('click',function(){this.classList.remove('visible')});
+document.getElementById('chat-mode-btn')?.addEventListener('click',()=>{
+  if(chatMode)return;
+  ['hud-identity','hud-minimap','hud-zones','hamburger','hud-top-right','hud-instructions'].forEach(id=>document.getElementById(id)?.classList.remove('visible'));
+  openChat();
+});
 
 /* ═══════════════════════════════════════════════════════
    GAME LOOP
