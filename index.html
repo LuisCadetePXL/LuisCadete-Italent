@@ -1,13 +1,118 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Neural Assembly | Luis Cadete Portfolio</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<!DOCTYPE html><html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Luis Cadete — Cyberpunk Portfolio v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🤖</text></svg>">
+</head>
+<body>
+<div id="boot"><div id="boot-text"></div><div id="boot-skip">[SKIP INTRO]</div></div>
+<canvas id="gameCanvas"></canvas>
+<div id="scanlines"></div>
+<div id="screen-overlay"></div>
+<div id="tooltip"></div>
+
+<div id="hud-identity">
+  <div><span class="label">UNIT:</span> <span class="value">LUIS_CADETE</span></div>
+  <div><span class="label">CLASS:</span> <span class="value">AI_ENGINEER</span></div>
+  <div class="status-bar"><div class="status-fill" id="statusFill"></div></div>
+</div>
+
+<div id="hud-top-right">
+  <a href="/Luis_Cadete_CV.pdf.pdf" download="Luis_Cadete_CV.pdf" class="cv-download-btn" id="cv-download-btn" aria-label="Download CV" title="Download CV">
+    <span class="cv-btn-icon">↓</span><span class="cv-btn-label">CV</span>
+  </a>
+</div>
+
+<div id="hud-minimap"><canvas id="minimapCanvas"></canvas></div>
+<div id="hamburger" aria-label="Menu" tabindex="0"><span></span><span></span><span></span></div>
+<div id="menu-dropdown"></div>
+<div id="hud-instructions">[CLICK GROUND] → NAVIGATE<br>[CLICK BUILDING] → ENTER<br>[SCROLL] → ZOOM</div>
+<div id="hud-zones">ZONES EXPLORED: <span id="zonesCount">0</span>/9</div>
+
+<!-- Welcome dialog -->
+<div id="welcome-dialog-container">
+  <div id="welcome-robot-canvas-wrapper">
+    <canvas id="welcome-robot-canvas" width="160" height="220"></canvas>
+  </div>
+  <div class="welcome-popup">
+    <div class="welcome-popup-arrow"></div>
+    <div class="welcome-popup-inner">
+      <p class="welcome-popup-greeting">SYSTEEM ACTIEF.</p>
+      <p class="welcome-popup-question">Hoe wil je mijn portfolio verkennen?</p>
+      <div class="welcome-popup-choices">
+        <button class="welcome-choice-btn" id="btn-explore">
+          <span class="choice-icon">◈</span>
+          <span class="choice-label">VERKENNER</span>
+          <span class="choice-desc">Navigeer de cyberpunk-stad vrij</span>
+        </button>
+        <button class="welcome-choice-btn" id="btn-chat">
+          <span class="choice-icon">◉</span>
+          <span class="choice-label">CHAT MODE</span>
+          <span class="choice-desc">Stel mij vragen direct</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Zone popup -->
+<div id="popup-overlay"></div>
+<div id="zone-popup">
+  <div class="popup-header">
+    <div class="popup-header-left">
+      <span class="popup-zone-id" id="popupZoneId">ZONE_ID</span>
+      <span class="popup-separator">://</span>
+      <span class="popup-zone-title" id="popupZoneTitle">ZONE TITEL</span>
+    </div>
+    <div class="popup-header-right">
+      <span class="popup-coords" id="popupCoords">[0,0]</span>
+      <button class="popup-close" id="popupClose" aria-label="Sluit">✕</button>
+    </div>
+  </div>
+  <div class="popup-divider"></div>
+  <div class="popup-body" id="popupBody">
+    <div class="crt-overlay"></div>
+  </div>
+  <div id="lightbox"><img id="lightbox-img" src="" alt=""></div>
+  <div class="popup-footer">
+    <button class="popup-nav-prev" id="popupPrev">◄ PREV</button>
+    <span class="popup-counter" id="popupCounter">0/7</span>
+    <button class="popup-nav-next" id="popupNext">NEXT ►</button>
+  </div>
+</div>
+
+<!-- Chat screen -->
+<div id="chat-screen">
+  <div class="chat-topbar">
+    <button class="chat-back-btn" id="chat-back-btn">← EXPLORE MODE</button>
+    <span class="chat-topbar-title">DIRECT_LINK // UNIT_LUIS</span>
+  </div>
+  <div class="chat-main-layout">
+    <div class="chat-robot-panel">
+      <canvas id="chat-robot-canvas" width="200" height="280"></canvas>
+      <div class="chat-robot-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-label" id="status-label">STANDBY</span>
+      </div>
+      <div class="chat-thinking-bar" id="chat-thinking-bar">
+        <div class="thinking-bar-fill" id="thinking-bar-fill"></div>
+      </div>
+    </div>
+    <div class="chat-interface-panel">
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-area">
+        <button class="chat-btn-mic" id="btn-mic" aria-label="Spraak" title="Spraak">🎤</button>
+        <input type="text" class="chat-input" id="chat-input" placeholder="STEL EEN VRAAG..." autocomplete="off">
+        <button class="chat-btn-send" id="btn-send" aria-label="Verzend" title="Verzend">➤</button>
+        <button class="chat-btn-tts" id="btn-tts" aria-label="Spraak aan/uit" title="Spraak aan/uit">🔊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
 </html>
